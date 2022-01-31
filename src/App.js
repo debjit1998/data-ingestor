@@ -3,6 +3,7 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
+import Loader from "./components/loader";
 import "./App.css";
 
 const SingleMode = lazy(() => import("./components/single"));
@@ -42,7 +43,7 @@ function App() {
         </RadioGroup>
       </FormControl>
 
-      <Suspense fallback={<div />}>
+      <Suspense fallback={<Loader show={true} />}>
         {mode === MODES.single ? <SingleMode /> : <BatchMode />}
       </Suspense>
     </div>

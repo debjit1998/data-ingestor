@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, lazy, Suspense } from "react";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import "./App.css";
+
+const SingleMode = lazy(() => import("./components/single"));
+const BatchMode = lazy(() => import("./components/batch"));
+
+const MODES = {
+  single: "single",
+  batch: "batch",
+};
 
 function App() {
+  const [mode, setMode] = useState(MODES.single);
+
+  const handleChange = (e) => setMode(e.target.value);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="app-container">
+      <h1>Please select your preffered mode of data upload</h1>
+      <FormControl component="fieldset">
+        <RadioGroup
+          row
+          aria-label="modes"
+          name="upload-mode"
+          value={mode}
+          onChange={handleChange}
         >
-          Learn React
-        </a>
-      </header>
+          <FormControlLabel
+            value={MODES.single}
+            control={<Radio />}
+            label="Single Mode"
+          />
+          <FormControlLabel
+            value={MODES.batch}
+            control={<Radio />}
+            label="Batch Mode"
+          />
+        </RadioGroup>
+      </FormControl>
+
+      <Suspense fallback={<div />}>
+        {mode === MODES.single ? <SingleMode /> : <BatchMode />}
+      </Suspense>
     </div>
   );
 }

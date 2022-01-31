@@ -1,0 +1,29 @@
+.singleMode {
+  padding-bottom: 2rem;
+}
+
+.textContainer {
+  display: grid;
+  grid-gap: 2rem;
+  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.textInput {
+  width: 100%;
+}
+.address {
+  grid-column: 1 / -1;
+}
+
+.remarksHeader {
+  margin-top: 2rem;
+  font-weight: 500;
+}
+
+.saveButton {
+  margin-top: 2rem;
+}
+.resetButton {
+  margin: 2rem 0 0 1rem;
+}

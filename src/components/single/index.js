@@ -14,9 +14,14 @@ const defaultValues = {
   fName: "",
   lName: "",
   phone: "",
-  address: "",
+  street: "",
+  city: "",
+  state: "",
+  pincode: "",
+  landmark: "",
   source: "",
   remark: "average",
+  gender: "male",
 };
 
 const REMARKS = {
@@ -25,13 +30,24 @@ const REMARKS = {
   best: "best",
 };
 
+const GENDER = {
+  male: "male",
+  female: "female",
+  other: "other",
+};
+
 const FIELD_NAMES = {
   fName: "First Name",
   lName: "Last Name",
   phone: "Phone Number",
-  address: "Full Address",
+  street: "Street",
+  city: "City",
+  state: "State",
+  pincode: "Pincode",
+  landmark: "Landmark",
   source: "Source",
   remark: "Remark",
+  gender: "Gender",
 };
 
 function SingleMode() {
@@ -50,10 +66,21 @@ function SingleMode() {
         return;
       }
     }
+    if (name === "pincode") {
+      if (value === "" || (regex.test(value) && value.length <= 6)) {
+        setValues((prev) => ({ ...prev, [name]: value }));
+        return;
+      } else {
+        return;
+      }
+    }
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleReset = () => setValues(defaultValues);
+  const handleReset = () => {
+    setValues(defaultValues);
+    setError(null);
+  };
 
   const handleSave = () => {
     const keys = Object.keys(values);
@@ -72,6 +99,15 @@ function SingleMode() {
           fieldName: key,
           header: "Validation Failed",
           content: `Please provide a 10 digit valid ${FIELD_NAMES[key]}.`,
+        });
+        setOpen(true);
+        return;
+      }
+      if (key === "pincode" && values[key].length < 6) {
+        setError({
+          fieldName: key,
+          header: "Validation Failed",
+          content: `Please provide a 6 digit valid ${FIELD_NAMES[key]}.`,
         });
         setOpen(true);
         return;
@@ -136,43 +172,111 @@ function SingleMode() {
             error={error?.fieldName === "source"}
           />
           <TextField
-            helperText="Please enter full address"
-            id="address"
-            label={FIELD_NAMES.address}
-            name="address"
-            value={values.address}
+            helperText="Please enter street name"
+            id="street"
+            label={FIELD_NAMES.street}
+            name="street"
+            value={values.street}
             onChange={handleChange}
-            className={css.address}
-            error={error?.fieldName === "address"}
+            className={css.textInput}
+            error={error?.fieldName === "street"}
           />
-        </div>
-        <div className={css.remarksContainer}>
-          <h3 className={css.remarksHeader}>Please provide a remark</h3>
-          <FormControl component="fieldset">
-            <RadioGroup
-              row
-              aria-label="remark"
-              name="remark"
-              value={values.remark}
-              onChange={handleChange}
-            >
-              <FormControlLabel
-                value={REMARKS.average}
-                control={<Radio />}
-                label="Average"
-              />
-              <FormControlLabel
-                value={REMARKS.good}
-                control={<Radio />}
-                label="Good"
-              />
-              <FormControlLabel
-                value={REMARKS.best}
-                control={<Radio />}
-                label="Best"
-              />
-            </RadioGroup>
-          </FormControl>
+          <TextField
+            helperText="Please enter city"
+            id="city"
+            label={FIELD_NAMES.city}
+            name="city"
+            value={values.city}
+            onChange={handleChange}
+            className={css.textInput}
+            error={error?.fieldName === "city"}
+          />
+          <TextField
+            helperText="Please enter state"
+            id="state"
+            label={FIELD_NAMES.state}
+            name="state"
+            value={values.state}
+            onChange={handleChange}
+            className={css.textInput}
+            error={error?.fieldName === "state"}
+          />
+          <TextField
+            helperText="Please enter pincode"
+            id="pincode"
+            label={FIELD_NAMES.pincode}
+            name="pincode"
+            value={values.pincode}
+            onChange={handleChange}
+            className={css.textInput}
+            error={error?.fieldName === "pincode"}
+          />
+          <TextField
+            helperText="Please enter landmark"
+            id="landmark"
+            label={FIELD_NAMES.landmark}
+            name="landmark"
+            value={values.landmark}
+            onChange={handleChange}
+            className={css.textInput}
+            error={error?.fieldName === "landmark"}
+          />
+          <div className={css.genderContainer}>
+            <h3 className={css.genderHeader}>Please select the gender</h3>
+            <FormControl component="fieldset">
+              <RadioGroup
+                row
+                aria-label="gender"
+                name="gender"
+                value={values.gender}
+                onChange={handleChange}
+              >
+                <FormControlLabel
+                  value={GENDER.male}
+                  control={<Radio />}
+                  label="Male"
+                />
+                <FormControlLabel
+                  value={GENDER.female}
+                  control={<Radio />}
+                  label="Female"
+                />
+                <FormControlLabel
+                  value={GENDER.other}
+                  control={<Radio />}
+                  label="Other"
+                />
+              </RadioGroup>
+            </FormControl>
+          </div>
+          <div className={css.remarksContainer}>
+            <h3 className={css.remarksHeader}>Please provide a remark</h3>
+            <FormControl component="fieldset">
+              <RadioGroup
+                row
+                aria-label="remark"
+                name="remark"
+                value={values.remark}
+                onChange={handleChange}
+              >
+                <FormControlLabel
+                  value={REMARKS.average}
+                  control={<Radio />}
+                  label="Average"
+                />
+                <FormControlLabel
+                  value={REMARKS.good}
+                  control={<Radio />}
+                  label="Good"
+                />
+                <FormControlLabel
+                  value={REMARKS.best}
+                  control={<Radio />}
+                  label="Best"
+                />
+              </RadioGroup>
+            </FormControl>
+          </div>
         </div>
         <Button
           variant="contained"

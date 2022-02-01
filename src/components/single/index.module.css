@@ -7,6 +7,12 @@
   grid-gap: 2rem;
   margin-top: 2rem;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: center;
+}
+
+.genderHeader {
+  font-weight: 500;
+  margin-top: 0.5rem;
 }
 
 .textInput {
@@ -17,7 +23,7 @@
 }
 
 .remarksHeader {
-  margin-top: 2rem;
+  margin-top: 0.5rem;
   font-weight: 500;
 }
 

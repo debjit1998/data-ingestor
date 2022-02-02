@@ -33,3 +33,7 @@
 .resetButton {
   margin: 2rem 0 0 1rem;
 }
+
+.searchContainer {
+  position: relative;
+}

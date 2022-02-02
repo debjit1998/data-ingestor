@@ -103,7 +103,7 @@ function BatchMode() {
       }
     }
     const formData = new FormData();
-    formData.append("dataFile", file);
+    formData.append("file", file);
     formData.append("senderEmail", values.senderEmail);
     formData.append("receiverEmail", values.receiverEmail);
     setLoading(true);

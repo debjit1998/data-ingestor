@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect, useRef } from "react";
 import {
   TextField,
   Button,
@@ -8,52 +8,45 @@ import {
   RadioGroup,
 } from "@mui/material";
 import Alert from "../alert";
+import Predictions from "../predictions";
+import useGoogleAutocomplete from "../../hooks/useGoogleAutocomplete";
+import {
+  defaultValues,
+  defaultAddressValues,
+  REMARKS,
+  FIELD_NAMES,
+  GENDER,
+  ADDRESS_TYPE,
+} from "../../utils/default";
 import css from "./index.module.css";
-
-const defaultValues = {
-  fName: "",
-  lName: "",
-  phone: "",
-  street: "",
-  city: "",
-  state: "",
-  pincode: "",
-  landmark: "",
-  source: "",
-  remark: "average",
-  gender: "male",
-};
-
-const REMARKS = {
-  average: "average",
-  good: "good",
-  best: "best",
-};
-
-const GENDER = {
-  male: "male",
-  female: "female",
-  other: "other",
-};
-
-const FIELD_NAMES = {
-  fName: "First Name",
-  lName: "Last Name",
-  phone: "Phone Number",
-  street: "Street",
-  city: "City",
-  state: "State",
-  pincode: "Pincode",
-  landmark: "Landmark",
-  source: "Source",
-  remark: "Remark",
-  gender: "Gender",
-};
 
 function SingleMode() {
   const [values, setValues] = useState(defaultValues);
+  const [address, setAddress] = useState(defaultAddressValues);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showPred, setShowPred] = useState(false);
+  const { predictions } = useGoogleAutocomplete(search);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const elem = searchRef.current;
+    const blur = () => setShowPred(false);
+
+    const focus = (e) => {
+      e.stopPropagation();
+      setShowPred(true);
+    };
+
+    elem.addEventListener("click", focus);
+    document.addEventListener("click", blur);
+
+    return () => {
+      document.removeEventListener("click", blur);
+      elem.removeEventListener("click", focus);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,26 +59,20 @@ function SingleMode() {
         return;
       }
     }
-    if (name === "pincode") {
-      if (value === "" || (regex.test(value) && value.length <= 6)) {
-        setValues((prev) => ({ ...prev, [name]: value }));
-        return;
-      } else {
-        return;
-      }
-    }
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleReset = () => {
     setValues(defaultValues);
+    setAddress(defaultAddressValues);
+    setSearch("");
     setError(null);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const keys = Object.keys(values);
     for (let key of keys) {
-      if (!values[key]) {
+      if (!values[key].trim()) {
         setError({
           fieldName: key,
           header: "Empty Field",
@@ -103,21 +90,23 @@ function SingleMode() {
         setOpen(true);
         return;
       }
-      if (key === "pincode" && values[key].length < 6) {
-        setError({
-          fieldName: key,
-          header: "Validation Failed",
-          content: `Please provide a 6 digit valid ${FIELD_NAMES[key]}.`,
-        });
-        setOpen(true);
-        return;
-      }
     }
 
     setError(null);
   };
 
   const handleClose = () => setOpen(false);
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handlePredictionClick = (address) => {
+    setAddress(address);
+    setValues((prev) => ({ ...prev, street: address.street }));
+    setSearch(address.street);
+    setShowPred(false);
+  };
 
   return (
     <Fragment>
@@ -132,24 +121,14 @@ function SingleMode() {
       <div className={css.singleMode}>
         <div className={css.textContainer}>
           <TextField
-            helperText="Please enter first name"
-            id="fName"
-            label={FIELD_NAMES.fName}
-            name="fName"
-            value={values.fName}
+            helperText="Please enter full name"
+            id="name"
+            label={FIELD_NAMES.name}
+            name="name"
+            value={values.name}
             onChange={handleChange}
             className={css.textInput}
-            error={error?.fieldName === "fName"}
-          />
-          <TextField
-            helperText="Please enter last name"
-            id="lName"
-            label={FIELD_NAMES.lName}
-            name="lName"
-            value={values.lName}
-            onChange={handleChange}
-            className={css.textInput}
-            error={error?.fieldName === "lName"}
+            error={error?.fieldName === "name"}
           />
           <TextField
             helperText="Please enter phone number"
@@ -171,8 +150,26 @@ function SingleMode() {
             className={css.textInput}
             error={error?.fieldName === "source"}
           />
+          <div className={css.searchContainer}>
+            <TextField
+              helperText="Please enter location to search"
+              id="search"
+              label="Search Street Name"
+              name="search"
+              value={search}
+              onChange={handleSearch}
+              className={css.textInput}
+              ref={searchRef}
+            />
+            {showPred && (
+              <Predictions
+                predictions={predictions}
+                handlePredictionClick={handlePredictionClick}
+              />
+            )}
+          </div>
           <TextField
-            helperText="Please enter street name"
+            helperText="Please select street name from search"
             id="street"
             label={FIELD_NAMES.street}
             name="street"
@@ -180,36 +177,7 @@ function SingleMode() {
             onChange={handleChange}
             className={css.textInput}
             error={error?.fieldName === "street"}
-          />
-          <TextField
-            helperText="Please enter city"
-            id="city"
-            label={FIELD_NAMES.city}
-            name="city"
-            value={values.city}
-            onChange={handleChange}
-            className={css.textInput}
-            error={error?.fieldName === "city"}
-          />
-          <TextField
-            helperText="Please enter state"
-            id="state"
-            label={FIELD_NAMES.state}
-            name="state"
-            value={values.state}
-            onChange={handleChange}
-            className={css.textInput}
-            error={error?.fieldName === "state"}
-          />
-          <TextField
-            helperText="Please enter pincode"
-            id="pincode"
-            label={FIELD_NAMES.pincode}
-            name="pincode"
-            value={values.pincode}
-            onChange={handleChange}
-            className={css.textInput}
-            error={error?.fieldName === "pincode"}
+            disabled
           />
           <TextField
             helperText="Please enter landmark"
@@ -221,6 +189,34 @@ function SingleMode() {
             className={css.textInput}
             error={error?.fieldName === "landmark"}
           />
+          <div className={css.genderContainer}>
+            <h3 className={css.genderHeader}>Please select the address type</h3>
+            <FormControl component="fieldset">
+              <RadioGroup
+                row
+                aria-label="addressType"
+                name="addressType"
+                value={values.addressType}
+                onChange={handleChange}
+              >
+                <FormControlLabel
+                  value={ADDRESS_TYPE.home}
+                  control={<Radio />}
+                  label="Home"
+                />
+                <FormControlLabel
+                  value={ADDRESS_TYPE.work}
+                  control={<Radio />}
+                  label="Work"
+                />
+                <FormControlLabel
+                  value={ADDRESS_TYPE.office}
+                  control={<Radio />}
+                  label="Office"
+                />
+              </RadioGroup>
+            </FormControl>
+          </div>
           <div className={css.genderContainer}>
             <h3 className={css.genderHeader}>Please select the gender</h3>
             <FormControl component="fieldset">
@@ -242,7 +238,7 @@ function SingleMode() {
                   label="Female"
                 />
                 <FormControlLabel
-                  value={GENDER.other}
+                  value={GENDER.others}
                   control={<Radio />}
                   label="Other"
                 />

@@ -22,7 +22,7 @@ import css from "./index.module.css";
 
 function SingleMode() {
   const [values, setValues] = useState(defaultValues);
-  const [address, setAddress] = useState(defaultAddressValues);
+  const [address, setAddress] = useState(defaultAddressValues); //eslint-disable-line
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
